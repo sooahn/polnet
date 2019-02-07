@@ -53,7 +53,8 @@ random_LSNM_data <- function(D, clients, legislators, client_space = NULL, legis
       legislator_space = mvrnorm(n = legislators, mu = mu, Sigma = Sigma)
     }
   }
-  distances = outer(split(client_space, row(client_space)), split(legislator_space, row(legislator_space)), Vectorize(l1_norm))
+  if (D>=2) distances = outer(split(client_space, row(client_space)), split(legislator_space, row(legislator_space)), Vectorize(l2_norm))
+	else distances = outer(client_space, legislator_space, Vectorize(l2_norm))
   diff_vec = a_B - distances
   A_mat = matrix(sapply(as.vector(diff_vec), function(x) rpois(1, exp(x))), nrow = nrow(distances))
   return(list(Theta = client_space, Psi = legislator_space, A = A_mat))
@@ -62,4 +63,8 @@ random_LSNM_data <- function(D, clients, legislators, client_space = NULL, legis
 
 l1_norm <- function(vec1, vec2){
   return(sum(abs(vec1 - vec2)))
+}
+
+l2_norm <- function(vec1, vec2){
+  return(sqrt(sum((vec1 - vec2)^2)))
 }
